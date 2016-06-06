@@ -13,16 +13,16 @@ private func epochToISO8601GMTString(epoch : Int) -> String? {
     var time: UnsafeMutablePointer<tm>
     time = gmtime(&epoch)
 
-    let buffer = UnsafeMutablePointer<Int8>.alloc(GMT_STRING_SIZE)
+    let buffer = UnsafeMutablePointer<Int8>(allocatingCapacity: GMT_STRING_SIZE)
     strftime(buffer, GMT_STRING_SIZE, "%FT%TZ", time);
-    return String.fromCString(buffer)
+    return String(cString: buffer)
 }
 
 extension NSDate {
     /// Get an ISO8601 compatible string representation
     public func toISO8601GMTString() -> String? {
         let epoch = Int(self.timeIntervalSince1970)
-        return epochToISO8601GMTString(epoch)
+        return epochToISO8601GMTString(epoch: epoch)
     }
 }
 
@@ -30,6 +30,6 @@ extension tm {
     public func toISO8601GMTString() -> String? {
         var tm_struct = self
         let epoch = Int(timegm(&tm_struct))
-        return epochToISO8601GMTString(epoch)
+        return epochToISO8601GMTString(epoch: epoch)
     }
 }

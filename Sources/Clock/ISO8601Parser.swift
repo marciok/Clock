@@ -31,7 +31,7 @@ public struct ISO8601 {
         withUnsafeMutablePointers(&y, &m, &d) { y, m, d in
             withUnsafeMutablePointers(&h, &mm, &s) { h, mm, s in
                 withUnsafeMutablePointers(&tz_h, &tz_m) { tz_h, tz_m in
-                    let args: [CVarArgType] = [y, m, d, h, mm, s, tz_h, tz_m]
+                    let args: [CVarArg] = [y, m, d, h, mm, s, tz_h, tz_m]
                     withVaList(args) {
                         result = vsscanf(dateString, format, $0)
                     }
@@ -82,18 +82,18 @@ extension tm {
 extension ISO8601 {
     private static func parse(dateString: String) -> DateTuple {
         for format in [TZ_MINUS_FORMAT, TZ_MINUS_FORMAT_NO_COLON] {
-            if let t = parse(dateString, withFormat: format, failAt: 8) {
+            if let t = parse(dateString: dateString, withFormat: format, failAt: 8) {
                 return (t.year, t.month, t.day, t.hour, t.minute, t.second, -t.timezone_hour, -t.timezone_minute)
             }
         }
 
         for format in [TZ_PLUS_FORMAT, TZ_PLUS_FORMAT_NO_COLON] {
-            if let dateTuple = parse(dateString, withFormat: format, failAt: 8) {
+            if let dateTuple = parse(dateString: dateString, withFormat: format, failAt: 8) {
                 return dateTuple
             }
         }
 
-        if let dateTuple = parse(dateString, withFormat: UTC_FORMAT) {
+        if let dateTuple = parse(dateString: dateString, withFormat: UTC_FORMAT) {
             return dateTuple
         }
         
@@ -101,14 +101,14 @@ extension ISO8601 {
     }
     
     public static func parse(dateString: String) -> tm {
-        let tuple: DateTuple = parse(dateString)
+        let tuple: DateTuple = parse(dateString: dateString)
         return tm(dateTuple: tuple) 
     }
     
     /// Parses an ISO8601 string, returning a coressponding NSDateComponents instance
     public static func parse(dateString: String) -> NSDateComponents {
         let components = NSDateComponents()
-        let tuple: DateTuple = parse(dateString)
-        return components.fill(tuple)
+        let tuple: DateTuple = parse(dateString: dateString)
+        return components.fill(dateTuple: tuple)
     }
 }
